@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GoldFlow — Live Chart</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%23C9A84C'/%3E%3Ctext x='16' y='22' text-anchor='middle' font-size='16' fill='%23000' font-family='Arial'%3EG%3C/text%3E%3C/svg%3E">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root{--gold:#C9A84C;--gold-light:#F0D080;--gold-dim:#6B5420;--bg:#080A0E;--bg2:#0D1018;--bg3:#131720;--border:#1E2430;--text:#E8EAF0;--muted:#5A6478;--bull:#26A65B;}
+  *{margin:0;padding:0;box-sizing:border-box;}
+  body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;min-height:100vh;}
+  .app{max-width:440px;margin:0 auto;padding:0 0 90px;}
+
+  header{padding:18px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;background:rgba(8,10,14,0.95);backdrop-filter:blur(12px);z-index:10;}
+  .logo{display:flex;align-items:center;gap:10px;}
+  .logo-icon{width:32px;height:32px;background:linear-gradient(135deg,var(--gold-light),var(--gold-dim));border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:14px;color:#000;}
+  .logo-text{font-size:15px;font-weight:800;}
+  .logo-text span{color:var(--gold-light);}
+  .live-badge{display:flex;align-items:center;gap:6px;background:rgba(38,166,91,0.12);border:1px solid rgba(38,166,91,0.3);border-radius:20px;padding:4px 10px;font-size:10px;font-family:'JetBrains Mono',monospace;color:var(--bull);letter-spacing:0.08em;}
+  .live-dot{width:6px;height:6px;background:var(--bull);border-radius:50%;animation:pulse 1.5s infinite;}
+  @keyframes pulse{0%,100%{opacity:1;}50%{opacity:.4;}}
+
+  .pair-tabs{display:flex;gap:8px;padding:14px 20px;border-bottom:1px solid var(--border);}
+  .pair-tab{flex:1;padding:11px;border:1px solid var(--border);background:var(--bg3);color:var(--muted);border-radius:10px;font-family:'JetBrains Mono',monospace;font-size:13px;cursor:pointer;text-align:center;transition:all 0.2s;}
+  .pair-tab.active{background:var(--gold);color:#000;border-color:var(--gold);font-weight:600;}
+
+  .tf-tabs{display:flex;gap:6px;padding:12px 20px;overflow-x:auto;}
+  .tf-tab{padding:7px 14px;border:1px solid var(--border);background:var(--bg3);color:var(--muted);border-radius:8px;font-family:'JetBrains Mono',monospace;font-size:11px;cursor:pointer;white-space:nowrap;transition:all 0.2s;}
+  .tf-tab.active{background:rgba(201,168,76,0.15);border-color:var(--gold);color:var(--gold);}
+
+  .chart-wrap{padding:0 14px;}
+  .chart-box{background:var(--bg3);border:1px solid var(--border);border-radius:14px;overflow:hidden;height:440px;position:relative;}
+  #tvchart{width:100%;height:100%;}
+  .chart-loading{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;background:var(--bg3);text-align:center;padding:24px;}
+  .spinner{width:34px;height:34px;border:3px solid var(--border);border-top-color:var(--gold);border-radius:50%;animation:spin 0.9s linear infinite;}
+  @keyframes spin{to{transform:rotate(360deg);}}
+  .chart-loading-text{font-size:12px;color:var(--muted);font-family:'JetBrains Mono',monospace;line-height:1.5;}
+
+  .note{padding:14px 20px;font-size:10px;color:var(--muted);font-family:'JetBrains Mono',monospace;line-height:1.5;text-align:center;}
+
+  .bottom-nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:440px;background:rgba(8,10,14,0.95);backdrop-filter:blur(16px);border-top:1px solid var(--border);display:flex;padding:10px 0 20px;}
+  .nav-item{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;cursor:pointer;padding:6px 0;}
+  .nav-icon{font-size:18px;}
+  .nav-label{font-size:9px;font-family:'JetBrains Mono',monospace;letter-spacing:0.08em;color:var(--muted);}
+  .nav-item.active .nav-label{color:var(--gold);}
+</style>
+</head>
+<body>
+<div class="app">
+  <header>
+    <div class="logo"><div class="logo-icon">&#11041;</div><div class="logo-text">Gold<span>Flow</span></div></div>
+    <div class="live-badge"><div class="live-dot"></div>LIVE</div>
+  </header>
+
+  <div class="pair-tabs">
+    <div class="pair-tab active" id="pXAU" onclick="setPair('OANDA:XAUUSD','XAUUSD',this)">XAUUSD</div>
+    <div class="pair-tab" id="pBTC" onclick="setPair('BINANCE:BTCUSDT','BTCUSDT',this)">BTCUSDT</div>
+  </div>
+
+  <div class="tf-tabs">
+    <div class="tf-tab" onclick="setTF('60',this)">H1</div>
+    <div class="tf-tab active" onclick="setTF('240',this)">H4</div>
+    <div class="tf-tab" onclick="setTF('D',this)">D1</div>
+    <div class="tf-tab" onclick="setTF('15',this)">M15</div>
+    <div class="tf-tab" onclick="setTF('5',this)">M5</div>
+  </div>
+
+  <div class="chart-wrap">
+    <div class="chart-box">
+      <div id="tvchart"></div>
+      <div class="chart-loading" id="chartLoading">
+        <div class="spinner"></div>
+        <div class="chart-loading-text">Đang tải biểu đồ thời gian thực...<br><span style="font-size:10px;">Cần kết nối internet. Mở bằng link thật (trình duyệt) để xem biểu đồ.</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="note">Biểu đồ thời gian thực &middot; TradingView. Vàng: nguồn OANDA &middot; BTC: nguồn Binance.</div>
+
+  <div class="bottom-nav">
+    <a href="goldflow-signal.html" class="nav-item" style="text-decoration:none;"><div class="nav-icon">&#9889;</div><div class="nav-label">SIGNAL</div></a>
+    <a href="goldflow-chart.html" class="nav-item active" style="text-decoration:none;"><div class="nav-icon">&#128202;</div><div class="nav-label">CHART</div></a>
+    <a href="goldflow-track-record.html" class="nav-item" style="text-decoration:none;"><div class="nav-icon">&#128203;</div><div class="nav-label">RECORD</div></a>
+    <a href="#" class="nav-item" style="text-decoration:none;"><div class="nav-icon">&#128100;</div><div class="nav-label">ACCOUNT</div></a>
+  </div>
+</div>
+
+<script src="https://s3.tradingview.com/tv.js"></script>
+<script>
+  var curSymbol='OANDA:XAUUSD', curTF='240', widget=null;
+  function buildChart(){
+    if(typeof TradingView==='undefined'){
+      // script not loaded yet (blocked or slow) — keep loader visible, retry
+      return false;
+    }
+    document.getElementById('chartLoading').style.display='none';
+    document.getElementById('tvchart').innerHTML='';
+    widget=new TradingView.widget({
+      autosize:true,symbol:curSymbol,interval:curTF,
+      timezone:'Asia/Ho_Chi_Minh',theme:'dark',style:'1',locale:'vi_VN',
+      toolbar_bg:'#0D1018',enable_publishing:false,hide_side_toolbar:true,
+      allow_symbol_change:false,container_id:'tvchart',
+      backgroundColor:'#131720',gridColor:'rgba(30,36,48,0.6)'
+    });
+    return true;
+  }
+  function setPair(sym,label,el){
+    curSymbol=sym;
+    document.querySelectorAll('.pair-tab').forEach(function(b){b.classList.remove('active');});
+    el.classList.add('active');buildChart();
+  }
+  function setTF(tf,el){
+    curTF=tf;
+    document.querySelectorAll('.tf-tab').forEach(function(b){b.classList.remove('active');});
+    el.classList.add('active');buildChart();
+  }
+  // retry until TradingView script is ready (handles slow / async load)
+  var tries=0;
+  function tryBuild(){
+    if(buildChart()) return;
+    if(++tries<20) setTimeout(tryBuild,400);
+  }
+  if(document.readyState==='complete') tryBuild();
+  else window.addEventListener('load',tryBuild);
+</script>
+</body>
+</html>

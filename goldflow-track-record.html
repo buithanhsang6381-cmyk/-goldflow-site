@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GoldFlow — Track Record</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%23C9A84C'/%3E%3Ctext x='16' y='22' text-anchor='middle' font-size='16' fill='%23000' font-family='Arial'%3EG%3C/text%3E%3C/svg%3E">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root{--gold:#C9A84C;--gold-light:#F0D080;--gold-dim:#6B5420;--bg:#080A0E;--bg2:#0D1018;--bg3:#131720;--border:#1E2430;--text:#E8EAF0;--muted:#5A6478;--bull:#26A65B;--bear:#E53E3E;--be:#8A93A6;--bull-bg:rgba(38,166,91,0.08);--bear-bg:rgba(229,62,62,0.08);}
+  *{margin:0;padding:0;box-sizing:border-box;}
+  body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;min-height:100vh;}
+  body::before{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");pointer-events:none;z-index:0;}
+  .app{position:relative;z-index:1;max-width:440px;margin:0 auto;padding:0 0 100px;}
+
+  header{padding:18px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;background:rgba(8,10,14,0.92);backdrop-filter:blur(12px);z-index:10;}
+  .logo{display:flex;align-items:center;gap:10px;}
+  .logo-icon{width:32px;height:32px;background:linear-gradient(135deg,var(--gold-light),var(--gold-dim));border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:14px;color:#000;}
+  .logo-text{font-size:15px;font-weight:800;}
+  .logo-text span{color:#F0D080;}
+  .lang-toggle{display:flex;background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:3px;}
+  .lang-toggle button{font-family:'JetBrains Mono',monospace;font-size:10px;padding:4px 8px;border:none;background:transparent;color:var(--muted);border-radius:5px;cursor:pointer;}
+  .lang-toggle button.active{background:var(--gold);color:#000;font-weight:600;}
+
+  .title-sec{padding:24px 20px 8px;}
+  .title-sec h1{font-size:26px;font-weight:800;margin-bottom:6px;}
+  .title-sec p{font-size:12px;color:var(--muted);font-family:'JetBrains Mono',monospace;line-height:1.5;}
+
+  /* stats */
+  .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--border);margin:16px 0;border-top:1px solid var(--border);border-bottom:1px solid var(--border);}
+  .stat{background:var(--bg);padding:18px 8px;text-align:center;}
+  .stat-num{font-family:'JetBrains Mono',monospace;font-size:24px;font-weight:600;color:var(--gold-light);line-height:1;}
+  .stat-num.green{color:var(--bull);}
+  .stat-label{font-size:9px;color:var(--muted);font-family:'JetBrains Mono',monospace;letter-spacing:0.08em;margin-top:8px;}
+
+  /* equity curve */
+  .curve-sec{padding:8px 20px 20px;}
+  .curve-title{font-size:10px;font-family:'JetBrains Mono',monospace;color:var(--muted);letter-spacing:0.12em;margin-bottom:12px;text-transform:uppercase;}
+  .curve-box{background:var(--bg3);border:1px solid var(--border);border-radius:12px;padding:16px;}
+  svg.curve{width:100%;height:120px;display:block;}
+
+  /* filter */
+  .filter{display:flex;gap:6px;padding:0 20px 14px;}
+  .filter button{flex:1;font-family:'JetBrains Mono',monospace;font-size:11px;padding:8px;border:1px solid var(--border);background:var(--bg3);color:var(--muted);border-radius:8px;cursor:pointer;transition:all 0.2s;}
+  .filter button.active{background:var(--gold);color:#000;border-color:var(--gold);font-weight:600;}
+
+  /* list */
+  .list{padding:0 20px;}
+  .section-label{font-size:10px;font-family:'JetBrains Mono',monospace;color:var(--muted);letter-spacing:0.12em;margin:8px 0 12px;text-transform:uppercase;}
+  .trade{background:var(--bg3);border:1px solid var(--border);border-radius:12px;padding:14px;margin-bottom:10px;display:flex;align-items:center;gap:12px;}
+  .trade.win{border-left:3px solid var(--bull);}
+  .trade.loss{border-left:3px solid var(--bear);}
+  .trade.be{border-left:3px solid var(--be);}
+  .t-dir{width:42px;height:42px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0;}
+  .t-dir.buy{background:var(--bull-bg);color:var(--bull);}
+  .t-dir.sell{background:var(--bear-bg);color:var(--bear);}
+  .t-info{flex:1;min-width:0;}
+  .t-pair{font-size:14px;font-weight:700;margin-bottom:3px;}
+  .t-meta{font-size:10px;color:var(--muted);font-family:'JetBrains Mono',monospace;line-height:1.4;}
+  .t-result{text-align:right;flex-shrink:0;}
+  .t-r{font-family:'JetBrains Mono',monospace;font-size:18px;font-weight:700;}
+  .t-r.win{color:var(--bull);}
+  .t-r.loss{color:var(--bear);}
+  .t-r.be{color:var(--be);}
+  .t-status{font-size:9px;font-family:'JetBrains Mono',monospace;color:var(--muted);margin-top:2px;}
+
+  .disclaim{padding:24px 20px 10px;text-align:center;}
+  .disclaim p{font-size:10px;color:var(--muted);font-family:'JetBrains Mono',monospace;line-height:1.6;}
+
+  .bottom-nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:440px;background:rgba(8,10,14,0.95);backdrop-filter:blur(16px);border-top:1px solid var(--border);display:flex;padding:10px 0 20px;z-index:10;}
+  .nav-item{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;cursor:pointer;padding:6px 0;text-decoration:none;}
+  .nav-icon{font-size:18px;}
+  .nav-label{font-size:9px;font-family:'JetBrains Mono',monospace;letter-spacing:0.08em;color:var(--muted);}
+  .nav-item.active .nav-label{color:var(--gold);}
+  .cta{margin:10px 20px 0;background:linear-gradient(135deg,var(--gold-light),var(--gold));color:#000;font-family:'Inter';font-weight:700;font-size:15px;padding:16px;border-radius:12px;border:none;cursor:pointer;width:calc(100% - 40px);box-shadow:0 8px 24px rgba(201,168,76,0.2);}
+</style>
+</head>
+<body>
+<div class="app">
+  <header>
+    <div class="logo"><div class="logo-icon">&#11041;</div><div class="logo-text">Gold<span>Flow</span></div></div>
+    <div class="lang-toggle"><button id="lVI" class="active" onclick="setLang('vi')">VI</button><button id="lEN" onclick="setLang('en')">EN</button></div>
+  </header>
+
+  <div class="title-sec">
+    <h1 data-i18n="title">Track Record</h1>
+    <p data-i18n="subtitle">Lịch sử phân tích minh bạch — cả thắng, hòa &amp; thua. Đơn vị R (risk-reward).</p>
+  </div>
+
+  <div class="stats" id="trStats">
+    <div class="stat"><div class="stat-num" id="trN">0</div><div class="stat-label" data-i18n="sTotal">TỔNG LỆNH</div></div>
+    <div class="stat"><div class="stat-num" id="trW">0%</div><div class="stat-label" data-i18n="sWin">TỈ LỆ THẮNG</div></div>
+    <div class="stat"><div class="stat-num green" id="trR">+0R</div><div class="stat-label" data-i18n="sTotalR">TỔNG R</div></div>
+  </div>
+
+  <div class="curve-sec">
+    <div class="curve-title" data-i18n="curveTitle">ĐƯỜNG CONG TÍCH LŨY (R)</div>
+    <div class="curve-box">
+      <svg class="curve" viewBox="0 0 320 120" preserveAspectRatio="none">
+        <defs><linearGradient id="g" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="rgba(201,168,76,0.3)"/><stop offset="100%" stop-color="rgba(201,168,76,0)"/></linearGradient></defs>
+        <path d="M0,110 L20,104 L40,108 L60,96 L80,92 L100,98 L120,84 L140,78 L160,82 L180,68 L200,60 L220,64 L240,50 L260,42 L280,46 L300,32 L320,24" fill="none" stroke="var(--gold-light)" stroke-width="2"/>
+        <path d="M0,110 L20,104 L40,108 L60,96 L80,92 L100,98 L120,84 L140,78 L160,82 L180,68 L200,60 L220,64 L240,50 L260,42 L280,46 L300,32 L320,24 L320,120 L0,120 Z" fill="url(#g)"/>
+      </svg>
+    </div>
+  </div>
+
+  <!-- MONTHLY R BREAKDOWN -->
+  <div style="padding:0 20px 16px;">
+    <div style="font-size:10px;font-family:'JetBrains Mono',monospace;color:var(--muted);letter-spacing:0.12em;margin-bottom:14px;text-transform:uppercase;">MONTHLY PERFORMANCE (R)</div>
+    <div style="background:var(--bg3);border:1px solid var(--border);border-radius:12px;padding:16px 12px;">
+      <div style="display:flex;align-items:flex-end;gap:8px;height:80px;">
+        <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:5px;">
+          <div style="font-size:9px;font-family:'JetBrains Mono',monospace;color:var(--bull);">+14R</div>
+          <div style="width:100%;background:var(--bull);border-radius:3px 3px 0 0;height:60%;opacity:0.8;"></div>
+          <div style="font-size:9px;color:var(--muted);font-family:'JetBrains Mono',monospace;">Mar</div>
+        </div>
+        <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:5px;">
+          <div style="font-size:9px;font-family:'JetBrains Mono',monospace;color:var(--bear);">-3R</div>
+          <div style="width:100%;background:var(--bear);border-radius:3px 3px 0 0;height:15%;opacity:0.8;"></div>
+          <div style="font-size:9px;color:var(--muted);font-family:'JetBrains Mono',monospace;">Apr</div>
+        </div>
+        <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:5px;">
+          <div style="font-size:9px;font-family:'JetBrains Mono',monospace;color:var(--bull);">+22R</div>
+          <div style="width:100%;background:var(--bull);border-radius:3px 3px 0 0;height:90%;opacity:0.8;"></div>
+          <div style="font-size:9px;color:var(--muted);font-family:'JetBrains Mono',monospace;">May</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="filter">
+    <button class="active" onclick="filt('all',this)" data-i18n="fAll">Tất cả</button>
+    <button onclick="filt('xau',this)">XAUUSD</button>
+    <button onclick="filt('btc',this)">BTCUSDT</button>
+  </div>
+
+  <div class="list" id="list">
+    <div class="section-label" data-i18n="recent">GẦN ĐÂY</div>
+
+    <div class="trade win" data-pair="xau">
+      <div class="t-dir buy">BUY</div>
+      <div class="t-info"><div class="t-pair">XAUUSD</div><div class="t-meta">28/05 &middot; H4 OB + FVG<br>Khớp 10:00 &rarr; TP2 13:20</div></div>
+      <div class="t-result"><div class="t-r win">+3R</div><div class="t-status" data-i18n="stClosed">Đã đóng</div></div>
+    </div>
+
+    <div class="trade win" data-pair="btc">
+      <div class="t-dir sell">SELL</div>
+      <div class="t-info"><div class="t-pair">BTCUSDT</div><div class="t-meta">27/05 &middot; H1 CHoCH<br>Khớp 15:00 &rarr; TP1 16:10 (50%)</div></div>
+      <div class="t-result"><div class="t-r win">+2R</div><div class="t-status" data-i18n="stClosed">Đã đóng</div></div>
+    </div>
+
+    <div class="trade be" data-pair="xau">
+      <div class="t-dir buy">BUY</div>
+      <div class="t-info"><div class="t-pair">XAUUSD</div><div class="t-meta">27/05 &middot; H1 FVG<br>TP1 chốt 50% &rarr; SL về entry quét</div></div>
+      <div class="t-result"><div class="t-r be">BE</div><div class="t-status" data-i18n="stBE">Hòa vốn</div></div>
+    </div>
+
+    <div class="trade loss" data-pair="xau">
+      <div class="t-dir sell">SELL</div>
+      <div class="t-info"><div class="t-pair">XAUUSD</div><div class="t-meta">26/05 &middot; H4 Liquidity<br>Khớp 09:30 &rarr; dính SL 10:45</div></div>
+      <div class="t-result"><div class="t-r loss">-1R</div><div class="t-status" data-i18n="stStop">Dính SL</div></div>
+    </div>
+
+    <div class="trade win" data-pair="btc">
+      <div class="t-dir buy">BUY</div>
+      <div class="t-info"><div class="t-pair">BTCUSDT</div><div class="t-meta">26/05 &middot; D1 OB<br>Khớp 08:00 &rarr; TP2 19:40</div></div>
+      <div class="t-result"><div class="t-r win">+3R</div><div class="t-status" data-i18n="stClosed">Đã đóng</div></div>
+    </div>
+
+    <div class="trade win" data-pair="xau">
+      <div class="t-dir buy">BUY</div>
+      <div class="t-info"><div class="t-pair">XAUUSD</div><div class="t-meta">23/05 &middot; H1 OB + Sweep<br>Khớp 14:00 &rarr; TP1 15:30 (50%)</div></div>
+      <div class="t-result"><div class="t-r win">+2R</div><div class="t-status" data-i18n="stClosed">Đã đóng</div></div>
+    </div>
+  </div>
+
+  <button class="cta" data-i18n="cta" onclick="window.location.href='goldflow-signal.html'">Xem phân tích hôm nay &rarr;</button>
+
+  <div class="disclaim">
+    <p data-i18n="disclaim">Mọi kết quả tính theo R. 1R = mức rủi ro mỗi khách tự chọn (tùy % tài khoản). Hiệu suất quá khứ KHÔNG đảm bảo kết quả tương lai. Đây là phân tích giáo dục, không phải lời khuyên đầu tư.</p>
+  </div>
+
+  <div class="bottom-nav">
+    <a href="goldflow-signal.html" class="nav-item"><div class="nav-icon">&#9889;</div><div class="nav-label">SIGNAL</div></a>
+    <a href="goldflow-chart.html" class="nav-item"><div class="nav-icon">&#128202;</div><div class="nav-label">CHART</div></a>
+    <a href="goldflow-track-record.html" class="nav-item active"><div class="nav-icon">&#128203;</div><div class="nav-label">RECORD</div></a>
+    <a href="#" class="nav-item"><div class="nav-icon">&#128100;</div><div class="nav-label">ACCOUNT</div></a>
+  </div>
+</div>
+
+<script>
+  var I18N={en:{
+    title:"Track Record",
+    subtitle:"Transparent analysis history — wins, breakevens &amp; losses. Measured in R (risk-reward).",
+    sTotal:"TOTAL TRADES",sWin:"WIN RATE",sTotalR:"TOTAL R",
+    curveTitle:"CUMULATIVE R CURVE",fAll:"All",
+    recent:"RECENT",stClosed:"Closed",stBE:"Breakeven",stStop:"Stopped out",
+    cta:"View today's analysis &rarr;",
+    disclaim:"All results measured in R. 1R = the risk each member chooses (% of their account). Past performance does NOT guarantee future results. Educational analysis, not financial advice."
+  },vi:{}};
+  var origVI={};
+  function cache(){document.querySelectorAll('[data-i18n]').forEach(function(e){origVI[e.getAttribute('data-i18n')]=e.innerHTML;});}
+  function setLang(l){
+    document.getElementById('lVI').classList.toggle('active',l==='vi');
+    document.getElementById('lEN').classList.toggle('active',l==='en');
+    document.documentElement.lang=l;var d=I18N[l];
+    document.querySelectorAll('[data-i18n]').forEach(function(e){var k=e.getAttribute('data-i18n');
+      if(l==='vi')e.innerHTML=origVI[k];else if(d[k]!==undefined)e.innerHTML=d[k];});
+  }
+  function filt(f,btn){
+    document.querySelectorAll('.filter button').forEach(function(b){b.classList.remove('active');});
+    btn.classList.add('active');
+    document.querySelectorAll('.trade').forEach(function(t){
+      t.style.display = (f==='all'||t.getAttribute('data-pair')===f)?'flex':'none';
+    });
+  }
+  cache();
+</script>
+
+<script>
+function animCount(id,target,prefix,suffix,dur){
+  var el=document.getElementById(id),cur=0,step=target/50;
+  var t=setInterval(function(){cur+=step;if(cur>=target){cur=target;clearInterval(t);}
+    el.textContent=(prefix||'')+Math.floor(cur)+(suffix||'');},dur/50);
+}
+var trObs=false;
+var trOb=new IntersectionObserver(function(e){
+  if(e[0].isIntersecting&&!trObs){trObs=true;
+    animCount('trN',68,'','',1000);
+    animCount('trW',64,'','%',1000);
+    animCount('trR',82,'+','R',1200);}
+},{threshold:0.5});
+var trEl=document.getElementById('trStats');
+if(trEl)trOb.observe(trEl);
+</script>
+</body>
+</html>

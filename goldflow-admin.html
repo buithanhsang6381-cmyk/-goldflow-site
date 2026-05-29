@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GoldFlow — Admin Panel</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root{--gold:#C9A84C;--gold-light:#F0D080;--gold-dim:#6B5420;--bg:#080A0E;--bg2:#0D1018;--bg3:#131720;--border:#1E2430;--text:#E8EAF0;--muted:#5A6478;--bull:#26A65B;--bear:#E53E3E;--bull-bg:rgba(38,166,91,0.08);--bear-bg:rgba(229,62,62,0.08);}
+  *{margin:0;padding:0;box-sizing:border-box;}
+  body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;min-height:100vh;}
+  .layout{max-width:900px;margin:0 auto;padding:0 0 60px;}
+
+  header{padding:18px 24px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;background:rgba(8,10,14,0.95);backdrop-filter:blur(12px);z-index:20;}
+  .logo{display:flex;align-items:center;gap:10px;}
+  .logo-icon{width:32px;height:32px;background:linear-gradient(135deg,var(--gold-light),var(--gold-dim));border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:14px;color:#000;}
+  .logo-text{font-size:15px;font-weight:800;}
+  .logo-text span{color:var(--gold-light);}
+  .admin-tag{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--gold);border:1px solid var(--gold-dim);padding:4px 10px;border-radius:6px;letter-spacing:0.1em;}
+
+  .grid{display:grid;grid-template-columns:1fr;gap:0;}
+  @media(min-width:760px){.grid{grid-template-columns:1fr 380px;}}
+
+  .form-area{padding:24px;}
+  .preview-area{padding:24px;border-top:1px solid var(--border);}
+  @media(min-width:760px){.preview-area{border-top:none;border-left:1px solid var(--border);position:sticky;top:72px;align-self:start;}}
+
+  h1{font-size:22px;font-weight:800;margin-bottom:4px;}
+  .desc{font-size:12px;color:var(--muted);margin-bottom:24px;font-family:'JetBrains Mono',monospace;}
+
+  .group{background:var(--bg3);border:1px solid var(--border);border-radius:14px;padding:18px;margin-bottom:16px;}
+  .group-title{font-size:11px;font-family:'JetBrains Mono',monospace;color:var(--gold);letter-spacing:0.12em;margin-bottom:16px;text-transform:uppercase;}
+
+  .row{display:flex;gap:12px;margin-bottom:14px;}
+  .row:last-child{margin-bottom:0;}
+  .field{flex:1;}
+  .field label{display:block;font-size:10px;font-family:'JetBrains Mono',monospace;color:var(--muted);letter-spacing:0.06em;margin-bottom:6px;text-transform:uppercase;}
+  .field input,.field select,.field textarea{width:100%;background:var(--bg2);border:1px solid var(--border);border-radius:9px;padding:11px;color:var(--text);font-family:'JetBrains Mono',monospace;font-size:13px;outline:none;transition:border 0.2s;}
+  .field input:focus,.field select:focus,.field textarea:focus{border-color:var(--gold);}
+  .field textarea{font-family:'Inter';resize:vertical;min-height:60px;}
+
+  .seg{display:flex;gap:6px;}
+  .seg button{flex:1;padding:10px;border:1px solid var(--border);background:var(--bg2);color:var(--muted);border-radius:9px;font-family:'JetBrains Mono',monospace;font-size:12px;cursor:pointer;transition:all 0.2s;}
+  .seg button.bull.active{background:var(--bull-bg);border-color:var(--bull);color:var(--bull);}
+  .seg button.bear.active{background:var(--bear-bg);border-color:var(--bear);color:var(--bear);}
+  .seg button.buy.active{background:var(--bull-bg);border-color:var(--bull);color:var(--bull);}
+  .seg button.sell.active{background:var(--bear-bg);border-color:var(--bear);color:var(--bear);}
+
+  .checks{display:flex;flex-direction:column;gap:8px;}
+  .check-row{display:flex;align-items:center;gap:10px;padding:9px 12px;background:var(--bg2);border:1px solid var(--border);border-radius:9px;cursor:pointer;}
+  .check-row input{width:auto;}
+  .check-row label{margin:0;font-size:12px;color:var(--text);font-family:'Inter';text-transform:none;letter-spacing:0;cursor:pointer;flex:1;}
+
+  .actions{display:flex;gap:12px;margin-top:8px;}
+  .btn-publish{flex:2;background:linear-gradient(135deg,var(--gold-light),var(--gold));color:#000;font-family:'Inter';font-weight:700;font-size:14px;padding:15px;border-radius:11px;border:none;cursor:pointer;box-shadow:0 6px 20px rgba(201,168,76,0.2);}
+  .btn-draft{flex:1;background:var(--bg3);color:var(--text);border:1px solid var(--border);font-family:'Inter';font-weight:600;font-size:13px;padding:15px;border-radius:11px;cursor:pointer;}
+
+  /* PREVIEW (mini phone) */
+  .preview-label{font-size:11px;font-family:'JetBrains Mono',monospace;color:var(--muted);letter-spacing:0.1em;margin-bottom:14px;text-transform:uppercase;}
+  .phone{background:var(--bg);border:1px solid var(--border);border-radius:18px;overflow:hidden;}
+  .pv-price{padding:14px 16px;border-bottom:1px solid var(--border);background:var(--bg2);}
+  .pv-pair{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);letter-spacing:0.1em;}
+  .pv-priceval{font-family:'JetBrains Mono',monospace;font-size:24px;font-weight:800;color:var(--gold-light);margin-top:3px;}
+  .pv-bias{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;padding:14px 16px;}
+  .pv-bcard{border:1px solid var(--border);border-radius:8px;padding:8px;text-align:center;background:var(--bg3);}
+  .pv-bcard.bull{border-color:rgba(38,166,91,0.3);background:var(--bull-bg);}
+  .pv-bcard.bear{border-color:rgba(229,62,62,0.3);background:var(--bear-bg);}
+  .pv-btf{font-size:9px;font-family:'JetBrains Mono',monospace;color:var(--muted);}
+  .pv-bdir{font-size:11px;font-weight:700;margin-top:3px;}
+  .pv-bcard.bull .pv-bdir{color:var(--bull);}
+  .pv-bcard.bear .pv-bdir{color:var(--bear);}
+  .pv-sig{margin:0 16px 16px;border:1px solid;border-radius:12px;overflow:hidden;}
+  .pv-sig.buy{border-color:rgba(38,166,91,0.4);background:linear-gradient(135deg,rgba(38,166,91,0.06),var(--bg3));}
+  .pv-sig.sell{border-color:rgba(229,62,62,0.4);background:linear-gradient(135deg,rgba(229,62,62,0.06),var(--bg3));}
+  .pv-sighead{padding:12px 14px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--border);}
+  .pv-dir{font-size:15px;font-weight:800;}
+  .pv-sig.buy .pv-dir{color:var(--bull);}
+  .pv-sig.sell .pv-dir{color:var(--bear);}
+  .pv-str{font-size:18px;font-weight:800;font-family:'JetBrains Mono',monospace;}
+  .pv-sig.buy .pv-str{color:var(--bull);}
+  .pv-sig.sell .pv-str{color:var(--bear);}
+  .pv-strlbl{font-size:8px;color:var(--muted);font-family:'JetBrains Mono',monospace;text-align:right;}
+  .pv-levels{padding:12px 14px;display:grid;grid-template-columns:repeat(3,1fr);gap:8px;}
+  .pv-llbl{font-size:8px;color:var(--muted);font-family:'JetBrains Mono',monospace;}
+  .pv-lval{font-family:'JetBrains Mono',monospace;font-size:12px;margin-top:3px;}
+  .pv-lval.e{color:var(--gold-light);}
+  .pv-lval.s{color:var(--bear);}
+  .pv-lval.t{color:var(--bull);}
+
+  .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);background:var(--bg3);border:1px solid var(--bull);border-radius:12px;padding:14px 20px;display:flex;align-items:center;gap:10px;z-index:200;opacity:0;transition:all 0.4s;box-shadow:0 8px 30px rgba(0,0,0,0.5);}
+  .toast.show{transform:translateX(-50%) translateY(0);opacity:1;}
+  .toast b{color:var(--bull);}
+</style>
+</head>
+<body>
+<div class="layout">
+  <header>
+    <div class="logo"><div class="logo-icon">&#11041;</div><div class="logo-text">Gold<span>Flow</span></div></div>
+    <div class="admin-tag">&#128274; ADMIN</div>
+  </header>
+
+  <div class="grid">
+    <!-- FORM -->
+    <div class="form-area">
+      <h1>Đăng phân tích mới</h1>
+      <div class="desc">Điền các trường &rarr; xem trước bên phải &rarr; Publish. User cập nhật ngay.</div>
+
+      <!-- pair + price -->
+      <div class="group">
+        <div class="group-title">Cặp &amp; Giá</div>
+        <div class="row">
+          <div class="field"><label>Cặp giao dịch</label>
+            <select id="pair" onchange="render()"><option>XAUUSD</option><option>BTCUSDT</option></select></div>
+          <div class="field"><label>Giá hiện tại</label>
+            <input id="price" value="2,384.50" oninput="render()"></div>
+        </div>
+        <div class="field"><label>Phiên đang hoạt động</label>
+          <select id="session" onchange="render()"><option>LONDON</option><option>NEW YORK</option><option>TOKYO</option></select></div>
+      </div>
+
+      <!-- MTF bias -->
+      <div class="group">
+        <div class="group-title">Bias Đa Khung</div>
+        <div class="row">
+          <div class="field"><label>D1</label>
+            <div class="seg" data-tf="d1"><button class="bull active" onclick="setBias('d1','bull',this)">BULL</button><button class="bear" onclick="setBias('d1','bear',this)">BEAR</button></div></div>
+          <div class="field"><label>H4</label>
+            <div class="seg" data-tf="h4"><button class="bull active" onclick="setBias('h4','bull',this)">BULL</button><button class="bear" onclick="setBias('h4','bear',this)">BEAR</button></div></div>
+          <div class="field"><label>H1</label>
+            <div class="seg" data-tf="h1"><button class="bull" onclick="setBias('h1','bull',this)">BULL</button><button class="bear active" onclick="setBias('h1','bear',this)">BEAR</button></div></div>
+        </div>
+      </div>
+
+      <!-- direction + levels -->
+      <div class="group">
+        <div class="group-title">Phân tích &amp; Vùng quan sát</div>
+        <div class="field" style="margin-bottom:14px;"><label>Hướng (Bias)</label>
+          <div class="seg" data-dir><button class="buy active" onclick="setDir('BUY',this)">BUY / Bullish</button><button class="sell" onclick="setDir('SELL',this)">SELL / Bearish</button></div></div>
+        <div class="field" style="margin-bottom:14px;"><label>Mô tả setup (vd: H1 OB + FVG Entry)</label>
+          <input id="setup" value="H1 OB + FVG Entry" oninput="render()"></div>
+        <div class="row">
+          <div class="field"><label>Entry</label><input id="entry" value="2,371.20" oninput="render()"></div>
+          <div class="field"><label>Stop Loss</label><input id="sl" value="2,361.00" oninput="render()"></div>
+          <div class="field"><label>Take Profit</label><input id="tp" value="2,401.80" oninput="render()"></div>
+        </div>
+        <div class="row">
+          <div class="field"><label>Risk / Reward</label><input id="rr" value="1 : 3.0" oninput="render()"></div>
+        </div>
+      </div>
+
+      <!-- ICT checklist -->
+      <div class="group">
+        <div class="group-title">Trạng thái lệnh</div>
+        <div class="field" style="margin-bottom:14px;"><label>Trạng thái hiện tại</label>
+          <select id="status" onchange="render()">
+            <option value="pending">⏳ Đang chờ khớp</option>
+            <option value="active">🔵 Đã khớp (đang chạy)</option>
+            <option value="tp1" selected>🟢 Đã TP1 (chốt 50% + Risk-Free)</option>
+            <option value="tp2">🟢 Đã TP2 (đóng hết)</option>
+            <option value="closed">✅ Đã đóng</option>
+            <option value="stopped">❌ Dính SL</option>
+          </select></div>
+        <div class="row">
+          <div class="field"><label>Giờ khớp</label><input id="timeFill" value="10:00" oninput="render()"></div>
+          <div class="field"><label>Giờ TP1 (nếu có)</label><input id="timeTp1" value="11:30" oninput="render()"></div>
+        </div>
+        <div class="field"><label>Kết quả R (khi đóng, vd +3R / BE / -1R)</label><input id="resultR" value="+1.5R" oninput="render()"></div>
+      </div>
+
+      <div class="group">
+        <div class="group-title">ICT Confluence (tick yếu tố thỏa mãn)</div>
+        <div class="checks">
+          <div class="check-row"><input type="checkbox" id="c1" checked onchange="render()"><label for="c1">HTF Structure (BOS) — D1</label></div>
+          <div class="check-row"><input type="checkbox" id="c2" checked onchange="render()"><label for="c2">Order Block — H4</label></div>
+          <div class="check-row"><input type="checkbox" id="c3" checked onchange="render()"><label for="c3">Fair Value Gap — H1</label></div>
+          <div class="check-row"><input type="checkbox" id="c4" checked onchange="render()"><label for="c4">Liquidity Swept — H1</label></div>
+          <div class="check-row"><input type="checkbox" id="c5" checked onchange="render()"><label for="c5">Killzone Active — M15</label></div>
+          <div class="check-row"><input type="checkbox" id="c6" onchange="render()"><label for="c6">CHoCH Confirmation — M15</label></div>
+        </div>
+        <div style="margin-top:12px;font-size:11px;font-family:'JetBrains Mono',monospace;color:var(--gold);">
+          Setup Strength tự tính: <b id="strengthOut">83%</b> (<span id="strengthFrac">5/6</span>)
+        </div>
+      </div>
+
+      <div class="actions">
+        <button class="btn-draft" onclick="saveDraft()">Lưu nháp</button>
+        <button class="btn-publish" onclick="publish()">&#9889; Publish</button>
+      </div>
+    </div>
+
+    <!-- PREVIEW -->
+    <div class="preview-area">
+      <div class="preview-label">Xem trước (User thấy)</div>
+      <div class="phone">
+        <div class="pv-price">
+          <div class="pv-pair" id="pvPair">XAU / USD &middot; SPOT</div>
+          <div class="pv-priceval" id="pvPrice">2,384.50</div>
+        </div>
+        <div class="pv-bias">
+          <div class="pv-bcard bull" id="pvD1"><div class="pv-btf">D1</div><div class="pv-bdir">BULL</div></div>
+          <div class="pv-bcard bull" id="pvH4"><div class="pv-btf">H4</div><div class="pv-bdir">BULL</div></div>
+          <div class="pv-bcard bear" id="pvH1"><div class="pv-btf">H1</div><div class="pv-bdir">BEAR</div></div>
+        </div>
+        <div class="pv-sig buy" id="pvSig">
+          <div style="padding:8px 14px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:6px;">
+            <span id="pvStatus" style="font-size:10px;font-family:'JetBrains Mono',monospace;font-weight:600;padding:3px 9px;border-radius:12px;">🟢 Đã TP1</span>
+            <span id="pvRiskFree" style="font-size:8px;font-family:'JetBrains Mono',monospace;color:var(--bull);padding:2px 7px;border:1px solid rgba(38,166,91,0.3);border-radius:10px;">🛡️ Risk-Free</span>
+          </div>
+          <div class="pv-sighead">
+            <div><div class="pv-dir" id="pvDir">BUY</div><div style="font-size:9px;color:var(--muted);font-family:'JetBrains Mono',monospace;" id="pvSetup">H1 OB + FVG Entry</div></div>
+            <div><div class="pv-str" id="pvStr">83%</div><div class="pv-strlbl">SETUP STRENGTH</div></div>
+          </div>
+          <div class="pv-levels">
+            <div><div class="pv-llbl">ENTRY</div><div class="pv-lval e" id="pvEntry">2,371.20</div></div>
+            <div><div class="pv-llbl">SL</div><div class="pv-lval s" id="pvSl">2,361.00</div></div>
+            <div><div class="pv-llbl">TP</div><div class="pv-lval t" id="pvTp">2,401.80</div></div>
+          </div>
+        </div>
+      </div>
+      <div style="margin-top:12px;font-size:10px;color:var(--muted);font-family:'JetBrains Mono',monospace;line-height:1.5;text-align:center;">
+        Gói Free sẽ thấy bản này trễ 4h + Entry/SL/TP bị ẩn
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast">&#10003; <b>Đã publish!</b> &nbsp;User đã nhận được phân tích mới.</div>
+
+<script>
+  var bias={d1:'bull',h4:'bull',h1:'bear'};
+  var dir='BUY';
+
+  function setBias(tf,val,btn){
+    bias[tf]=val;
+    btn.parentNode.querySelectorAll('button').forEach(function(b){b.classList.remove('active');});
+    btn.classList.add('active');
+    render();
+  }
+  function setDir(d,btn){
+    dir=d;
+    btn.parentNode.querySelectorAll('button').forEach(function(b){b.classList.remove('active');});
+    btn.classList.add('active');
+    render();
+  }
+
+  function calcStrength(){
+    var ids=['c1','c2','c3','c4','c5','c6'],n=0;
+    ids.forEach(function(i){if(document.getElementById(i).checked)n++;});
+    return {n:n,pct:Math.round(n/6*100)};
+  }
+
+  function render(){
+    var pair=document.getElementById('pair').value;
+    var price=document.getElementById('price').value;
+    var isXau=pair==='XAUUSD';
+    document.getElementById('pvPair').innerHTML = isXau?'XAU / USD &middot; SPOT':'BTC / USDT &middot; SPOT';
+    document.getElementById('pvPrice').textContent=price;
+
+    // bias
+    ['d1','h4','h1'].forEach(function(tf){
+      var card=document.getElementById('pv'+tf.toUpperCase());
+      card.className='pv-bcard '+bias[tf];
+      card.querySelector('.pv-bdir').textContent=bias[tf].toUpperCase();
+    });
+
+    // direction
+    var sig=document.getElementById('pvSig');
+    sig.className='pv-sig '+(dir==='BUY'?'buy':'sell');
+    document.getElementById('pvDir').textContent=dir;
+    document.getElementById('pvSetup').textContent=document.getElementById('setup').value;
+    document.getElementById('pvEntry').textContent=document.getElementById('entry').value;
+    document.getElementById('pvSl').textContent=document.getElementById('sl').value;
+    document.getElementById('pvTp').textContent=document.getElementById('tp').value;
+
+    // strength
+    var s=calcStrength();
+    document.getElementById('pvStr').textContent=s.pct+'%';
+    document.getElementById('strengthOut').textContent=s.pct+'%';
+    document.getElementById('strengthFrac').textContent=s.n+'/6';
+
+    // status
+    var st=document.getElementById('status').value;
+    var labels={pending:'⏳ Đang chờ khớp',active:'🔵 Đã khớp',tp1:'🟢 Đã TP1',tp2:'🟢 Đã TP2',closed:'✅ Đã đóng',stopped:'❌ Dính SL'};
+    var colors={pending:'rgba(201,168,76,0.15);color:#C9A84C',active:'rgba(58,130,246,0.15);color:#5B9BF5',tp1:'rgba(38,166,91,0.12);color:#26A65B',tp2:'rgba(38,166,91,0.12);color:#26A65B',closed:'rgba(138,147,166,0.12);color:#8A93A6',stopped:'rgba(229,62,62,0.12);color:#E53E3E'};
+    var pvSt=document.getElementById('pvStatus');
+    pvSt.textContent=labels[st];
+    pvSt.style.cssText='font-size:10px;font-family:JetBrains Mono,monospace;font-weight:600;padding:3px 9px;border-radius:12px;background:'+colors[st];
+    // risk-free badge only after tp1/tp2
+    document.getElementById('pvRiskFree').style.display=(st==='tp1'||st==='tp2')?'inline':'none';
+  }
+
+  function publish(){
+    var t=document.getElementById('toast');t.classList.add('show');
+    setTimeout(function(){t.classList.remove('show');},3000);
+  }
+  function saveDraft(){alert('Đã lưu nháp. Bạn có thể publish sau.');}
+
+  render();
+</script>
+</body>
+</html>

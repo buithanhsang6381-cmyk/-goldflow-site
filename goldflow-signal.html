@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GoldFlow Signal — Live Signals</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --gold:#C9A84C; --gold-light:#F0D080; --gold-dim:#6B5420;
+    --bg:#080A0E; --bg2:#0D1018; --bg3:#131720; --border:#1E2430;
+    --text:#E8EAF0; --muted:#4A5568; --bull:#26A65B; --bear:#E53E3E;
+    --bull-bg:rgba(38,166,91,0.08); --bear-bg:rgba(229,62,62,0.08); --tele:#2AABEE;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;min-height:100vh;overflow-x:hidden;}
+  body::before{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");pointer-events:none;z-index:0;}
+  .app{position:relative;z-index:1;max-width:440px;margin:0 auto;padding:0 0 90px;}
+
+  header{padding:18px 20px 14px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;background:rgba(8,10,14,0.92);backdrop-filter:blur(12px);z-index:10;}
+  .logo{display:flex;align-items:center;gap:10px;}
+  .logo-icon{width:32px;height:32px;background:linear-gradient(135deg,var(--gold-light),var(--gold-dim));border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:14px;color:#000;}
+  .logo-text{font-size:15px;font-weight:800;}
+  .logo-text span{color:#F0D080;}
+  .logo-sub{font-size:9px;color:var(--muted);font-family:'JetBrains Mono',monospace;letter-spacing:0.1em;}
+  .head-right{display:flex;align-items:center;gap:12px;}
+
+  /* Bell */
+  .bell{position:relative;width:38px;height:38px;border-radius:10px;background:var(--bg3);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all 0.2s;}
+  .bell svg{width:18px;height:18px;fill:var(--text);}
+  .bell.locked{opacity:0.4;}
+  .bell.locked svg{fill:var(--muted);}
+  .bell-dot{position:absolute;top:7px;right:8px;width:8px;height:8px;background:var(--bear);border-radius:50%;border:2px solid var(--bg3);}
+  .bell.has-alert{border-color:var(--gold);box-shadow:0 0 12px rgba(201,168,76,0.3);}
+  .bell.has-alert svg{fill:var(--gold-light);animation:ring 0.6s ease;}
+  @keyframes ring{0%,100%{transform:rotate(0);}20%{transform:rotate(15deg);}40%{transform:rotate(-12deg);}60%{transform:rotate(8deg);}80%{transform:rotate(-4deg);}}
+
+  .lang-toggle{display:flex;background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:3px;}
+  .lang-toggle button{font-family:'JetBrains Mono',monospace;font-size:10px;padding:4px 8px;border:none;background:transparent;color:var(--muted);border-radius:5px;cursor:pointer;}
+  .lang-toggle button.active{background:var(--gold);color:#000;font-weight:600;}
+
+  /* plan banner */
+  .plan-banner{margin:0;padding:10px 20px;font-family:'JetBrains Mono',monospace;font-size:11px;display:flex;align-items:center;justify-content:space-between;}
+  .plan-banner.free{background:rgba(201,168,76,0.08);border-bottom:1px solid var(--gold-dim);color:var(--gold);}
+  .plan-banner.paid{background:rgba(38,166,91,0.08);border-bottom:1px solid rgba(38,166,91,0.3);color:var(--bull);}
+  .plan-banner a{color:var(--gold-light);text-decoration:underline;cursor:pointer;}
+  .demo-switch{padding:8px 20px;background:var(--bg2);border-bottom:1px solid var(--border);display:flex;gap:8px;align-items:center;font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);}
+  .demo-switch button{font-family:'JetBrains Mono',monospace;font-size:10px;padding:5px 12px;border:1px solid var(--border);background:var(--bg3);color:var(--muted);border-radius:6px;cursor:pointer;}
+  .demo-switch button.active{background:var(--gold);color:#000;border-color:var(--gold);font-weight:600;}
+
+  .price-section{padding:18px 20px;background:linear-gradient(180deg,var(--bg2),transparent);border-bottom:1px solid var(--border);}
+  .pair-label{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted);letter-spacing:0.12em;margin-bottom:6px;}
+  .price-row{display:flex;align-items:flex-end;gap:12px;margin-bottom:8px;}
+  .price-main{font-size:34px;font-weight:800;color:var(--gold-light);line-height:1;font-family:'JetBrains Mono',monospace;}
+  .price-change{font-family:'JetBrains Mono',monospace;font-size:13px;padding:3px 8px;border-radius:4px;margin-bottom:4px;}
+  .price-change.up{background:var(--bull-bg);color:var(--bull);}
+  .session-row{display:flex;gap:8px;}
+  .session-tag{font-size:10px;font-family:'JetBrains Mono',monospace;padding:3px 8px;border-radius:3px;letter-spacing:0.06em;}
+  .session-tag.active{background:rgba(201,168,76,0.15);border:1px solid rgba(201,168,76,0.3);color:var(--gold);}
+  .session-tag.inactive{background:transparent;border:1px solid var(--border);color:var(--muted);}
+
+  .section{padding:16px 20px;}
+  .section-title{font-size:10px;font-family:'JetBrains Mono',monospace;color:var(--muted);letter-spacing:0.14em;margin-bottom:12px;text-transform:uppercase;}
+  .bias-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;}
+  .bias-card{background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:12px 10px;text-align:center;}
+  .bias-card.bull{border-color:rgba(38,166,91,0.3);background:var(--bull-bg);}
+  .bias-card.bear{border-color:rgba(229,62,62,0.3);background:var(--bear-bg);}
+  .bias-tf{font-size:10px;font-family:'JetBrains Mono',monospace;color:var(--muted);margin-bottom:6px;letter-spacing:0.08em;}
+  .bias-dir{font-size:13px;font-weight:700;letter-spacing:0.06em;}
+  .bias-card.bull .bias-dir{color:var(--bull);}
+  .bias-card.bear .bias-dir{color:var(--bear);}
+  .bias-detail{font-size:9px;color:var(--muted);font-family:'JetBrains Mono',monospace;margin-top:4px;}
+
+  .signal-card{margin:0 20px 16px;border-radius:16px;border:1px solid;overflow:hidden;animation:slideUp 0.4s ease;}
+  @keyframes slideUp{from{opacity:0;transform:translateY(16px);}to{opacity:1;transform:translateY(0);}}
+  .signal-card.buy{border-color:rgba(38,166,91,0.4);background:linear-gradient(135deg,rgba(38,166,91,0.06),var(--bg3) 60%);}
+  .signal-header{padding:16px 18px 12px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border);}
+  .signal-type{display:flex;align-items:center;gap:10px;}
+  .signal-badge{font-size:18px;font-weight:800;letter-spacing:0.08em;}
+  .signal-card.buy .signal-badge{color:var(--bull);}
+  .signal-pair{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted);}
+  .confidence{text-align:right;}
+  .conf-val{font-size:22px;font-weight:800;font-family:'JetBrains Mono',monospace;}
+  .signal-card.buy .conf-val{color:var(--bull);}
+  .conf-label{font-size:9px;color:var(--muted);font-family:'JetBrains Mono',monospace;letter-spacing:0.1em;}
+
+  .signal-levels{padding:14px 18px;display:grid;grid-template-columns:repeat(3,1fr);gap:12px;position:relative;}
+  .level-item{}
+  .level-label{font-size:9px;color:var(--muted);font-family:'JetBrains Mono',monospace;letter-spacing:0.1em;margin-bottom:4px;}
+  .level-val{font-family:'JetBrains Mono',monospace;font-size:14px;font-weight:500;}
+  .level-val.entry{color:var(--gold-light);}
+  .level-val.sl{color:var(--bear);}
+  .level-val.tp{color:var(--bull);}
+  .level-val.locked{color:var(--muted);filter:blur(0.5px);}
+
+  /* lock overlay */
+  .lock-overlay{position:absolute;inset:0;background:linear-gradient(180deg,rgba(13,16,24,0.3),rgba(13,16,24,0.92));backdrop-filter:blur(3px);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;border-radius:8px;}
+  .lock-overlay .lk-icon{font-size:22px;}
+  .lock-overlay .lk-text{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--gold-light);text-align:center;line-height:1.4;}
+  .lock-btn{margin-top:4px;background:linear-gradient(135deg,var(--gold-light),var(--gold));color:#000;font-family:'Inter';font-weight:700;font-size:12px;padding:8px 18px;border-radius:8px;border:none;cursor:pointer;text-decoration:none;}
+
+  .rr-section{padding:4px 18px 16px;}
+  .rr-label{display:flex;justify-content:space-between;font-size:9px;font-family:'JetBrains Mono',monospace;color:var(--muted);margin-bottom:6px;}
+  .rr-val{color:var(--gold);font-weight:600;}
+  .rr-bar-bg{height:4px;background:var(--border);border-radius:2px;overflow:hidden;}
+  .rr-bar-fill{height:100%;background:linear-gradient(90deg,var(--gold-dim),var(--gold));border-radius:2px;width:75%;}
+  .signal-tags{padding:0 18px 14px;display:flex;flex-wrap:wrap;gap:6px;}
+  .tag{font-size:9px;font-family:'JetBrains Mono',monospace;padding:3px 8px;border-radius:3px;background:var(--bg2);border:1px solid var(--border);color:var(--muted);letter-spacing:0.06em;}
+  .tag.highlight{background:rgba(201,168,76,0.1);border-color:rgba(201,168,76,0.3);color:var(--gold);}
+
+  /* ORDER STATUS */
+  .status-bar{padding:11px 18px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border);font-family:'JetBrains Mono',monospace;}
+  .status-left{display:flex;align-items:center;gap:8px;}
+  .status-pill{font-size:11px;padding:4px 11px;border-radius:20px;font-weight:600;letter-spacing:0.04em;display:flex;align-items:center;gap:6px;}
+  .status-pill.pending{background:rgba(201,168,76,0.12);color:var(--gold);border:1px solid var(--gold-dim);}
+  .status-pill.active{background:rgba(58,130,246,0.12);color:#5B9BF5;border:1px solid rgba(58,130,246,0.3);}
+  .status-pill.tp1{background:var(--bull-bg);color:var(--bull);border:1px solid rgba(38,166,91,0.3);}
+  .status-pill.closed{background:rgba(138,147,166,0.12);color:var(--muted);border:1px solid var(--border);}
+  .status-pill.stopped{background:var(--bear-bg);color:var(--bear);border:1px solid rgba(229,62,62,0.3);}
+  .status-dot{width:7px;height:7px;border-radius:50%;background:currentColor;}
+  .status-pill.active .status-dot,.status-pill.pending .status-dot{animation:pulse 1.4s infinite;}
+  @keyframes pulse{0%,100%{opacity:1;}50%{opacity:0.35;}}
+  .riskfree-badge{font-size:9px;padding:3px 9px;border-radius:12px;background:var(--bull-bg);color:var(--bull);border:1px solid rgba(38,166,91,0.3);letter-spacing:0.05em;}
+  .status-time{font-size:9px;color:var(--muted);}
+  /* status journey line */
+  .status-journey{padding:8px 18px 12px;font-size:10px;font-family:'JetBrains Mono',monospace;color:var(--muted);line-height:1.6;border-bottom:1px solid var(--border);}
+  .status-journey b{color:var(--gold-light);}
+  .sj-win{color:var(--bull);}
+  .sj-loss{color:var(--bear);}
+
+  .checklist{margin:0 20px 16px;background:var(--bg3);border:1px solid var(--border);border-radius:12px;overflow:hidden;position:relative;}
+  .checklist-header{padding:12px 16px;border-bottom:1px solid var(--border);font-size:10px;font-family:'JetBrains Mono',monospace;color:var(--muted);letter-spacing:0.12em;display:flex;justify-content:space-between;align-items:center;}
+  .check-score{color:var(--gold);font-weight:600;}
+  .check-item{padding:10px 16px;display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--border);}
+  .check-item:last-child{border-bottom:none;}
+  .check-icon{width:18px;height:18px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;flex-shrink:0;}
+  .check-icon.pass{background:var(--bull-bg);color:var(--bull);}
+  .check-icon.warn{background:rgba(201,168,76,0.1);color:var(--gold);}
+  .check-text{font-size:12px;color:var(--text);flex:1;}
+  .check-tf{font-size:9px;font-family:'JetBrains Mono',monospace;color:var(--muted);}
+
+  .bottom-nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:440px;background:rgba(8,10,14,0.95);backdrop-filter:blur(16px);border-top:1px solid var(--border);display:flex;padding:10px 0 20px;}
+  .nav-item{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;cursor:pointer;padding:6px 0;}
+  .nav-icon{font-size:18px;}
+  .nav-label{font-size:9px;font-family:'JetBrains Mono',monospace;letter-spacing:0.08em;color:var(--muted);}
+  .nav-item.active .nav-label{color:var(--gold);}
+
+  .toast{position:fixed;top:70px;left:50%;transform:translateX(-50%) translateY(-80px);background:var(--bg3);border:1px solid var(--gold);border-radius:12px;padding:14px 18px;display:flex;align-items:center;gap:12px;z-index:200;box-shadow:0 8px 30px rgba(0,0,0,0.5);opacity:0;transition:all 0.4s;max-width:380px;width:calc(100% - 40px);}
+  .toast.show{transform:translateX(-50%) translateY(0);opacity:1;}
+  .toast-icon{font-size:20px;}
+  .toast-text{font-size:13px;}
+  .toast-text b{color:var(--gold-light);}
+  .toast-sub{font-size:10px;color:var(--muted);font-family:'JetBrains Mono',monospace;margin-top:2px;}
+</style>
+</head>
+<body>
+<div class="app">
+
+  <header>
+    <div class="logo">
+      <div class="logo-icon">&#11041;</div>
+      <div>
+        <div class="logo-text">Gold<span>Flow</span></div>
+        <div class="logo-sub">SMC &middot; ICT &middot; SIGNAL</div>
+      </div>
+    </div>
+    <div class="head-right">
+      <div class="lang-toggle">
+        <button id="lVI" class="active" onclick="setLang('vi')">VI</button>
+        <button id="lEN" onclick="setLang('en')">EN</button>
+      </div>
+      <div class="bell" id="bell" onclick="bellClick()" title="Notifications">
+        <svg viewBox="0 0 24 24"><path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.9 2 2 2zm6-6v-5c0-3.07-1.63-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.64 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z"/></svg>
+      </div>
+    </div>
+  </header>
+
+  <!-- DEMO SWITCH (chỉ để bạn xem thử 2 chế độ - sẽ bỏ khi chạy thật) -->
+  <div class="demo-switch">
+    <span data-i18n="demoLabel">XEM THỬ:</span>
+    <button id="modeFree" class="active" onclick="setMode('free')" data-i18n="modeFree">Gói Free</button>
+    <button id="modePaid" onclick="setMode('paid')" data-i18n="modePaid">Gói Trả phí</button>
+  </div>
+
+  <!-- PLAN BANNER -->
+  <div class="plan-banner free" id="bannerFree">
+    <span data-i18n="freeBanner">&#9200; Gói Free — tín hiệu trễ 4 giờ</span>
+    <a href="#" data-i18n="upgrade">Nâng cấp &rarr;</a>
+  </div>
+  <div class="plan-banner paid" id="bannerPaid" style="display:none;">
+    <span data-i18n="paidBanner">&#9889; Gói Basic — Realtime &middot; Đã kích hoạt</span>
+    <span style="color:var(--muted);">VIP</span>
+  </div>
+
+  <!-- PRICE -->
+  <div class="price-section">
+    <div class="pair-label">XAU / USD &middot; SPOT</div>
+    <div class="price-row">
+      <div class="price-main">2,384.50</div>
+      <div class="price-change up">+0.42%</div>
+    </div>
+    <div class="session-row">
+      <div class="session-tag inactive">TOKYO</div>
+      <div class="session-tag active">LONDON</div>
+      <div class="session-tag inactive">NEW YORK</div>
+    </div>
+  </div>
+
+  <!-- MARKET SENTIMENT -->
+  <div style="padding:12px 20px;background:var(--bg2);border-bottom:1px solid var(--border);">
+    <div style="display:flex;justify-content:space-between;font-size:9px;font-family:'JetBrains Mono',monospace;color:var(--muted);margin-bottom:7px;letter-spacing:0.08em;">
+      <span>BEARISH</span><span id="sentLabel" style="color:var(--gold);">BULLISH BIAS</span><span>BULLISH</span>
+    </div>
+    <div style="height:6px;background:var(--border);border-radius:3px;overflow:hidden;position:relative;">
+      <div id="sentBar" style="position:absolute;left:0;top:0;height:100%;width:68%;background:linear-gradient(90deg,var(--bear),var(--gold),var(--bull));border-radius:3px;transition:width 1s;"></div>
+      <div id="sentPointer" style="position:absolute;top:-3px;left:68%;width:2px;height:12px;background:#fff;border-radius:1px;transform:translateX(-50%);transition:left 1s;"></div>
+    </div>
+    <div style="text-align:center;margin-top:7px;font-size:10px;font-family:'JetBrains Mono',monospace;color:var(--gold-light);font-weight:600;" id="sentScore">68% Bullish</div>
+  </div>
+
+  <!-- MTF BIAS (always visible) -->
+  <div class="section">
+    <div class="section-title" data-i18n="mtfTitle">MULTI-TIMEFRAME BIAS</div>
+    <div class="bias-grid">
+      <div class="bias-card bull"><div class="bias-tf">D1</div><div class="bias-dir">BULL</div><div class="bias-detail">BOS &uarr;</div></div>
+      <div class="bias-card bull"><div class="bias-tf">H4</div><div class="bias-dir">BULL</div><div class="bias-detail">CHoCH &uarr;</div></div>
+      <div class="bias-card bear"><div class="bias-tf">H1</div><div class="bias-dir">BEAR</div><div class="bias-detail" data-i18n="pullback">Pullback</div></div>
+    </div>
+  </div>
+
+  <!-- SIGNAL CARD -->
+  <div class="signal-card buy">
+    <!-- ORDER STATUS BAR -->
+    <div class="status-bar">
+      <div class="status-left">
+        <div class="status-pill tp1" id="statusPill"><span class="status-dot"></span><span data-i18n="stTp1">Đã TP1 (chốt 50%)</span></div>
+        <div class="riskfree-badge" data-i18n="riskFree">&#128737; Risk-Free</div>
+      </div>
+      <div class="status-time" id="statusTime">11:30</div>
+    </div>
+    <!-- STATUS JOURNEY -->
+    <div class="status-journey" data-i18n-html="journey">
+      &#128309; Đã khớp <b>10:00</b> &rarr; <span class="sj-win">&#128994; TP1 11:30 (+1.5R, chốt 50%, SL dời về entry)</span> &rarr; đang chạy tới TP2
+    </div>
+
+    <div class="signal-header">
+      <div class="signal-type">
+        <div class="signal-badge">BUY</div>
+        <div>
+          <div style="font-size:13px;font-weight:700;">XAUUSD</div>
+          <div class="signal-pair">H1 OB + FVG Entry</div>
+        </div>
+      </div>
+      <div class="confidence">
+        <div class="conf-val">87%</div>
+        <div class="conf-label" data-i18n="confLabel">SETUP STRENGTH</div>
+      </div>
+    </div>
+
+    <div class="signal-levels" id="levels">
+      <div class="level-item"><div class="level-label">ENTRY</div><div class="level-val entry" data-real="2,371.20" data-fake="2,3xx.xx">2,371.20</div></div>
+      <div class="level-item"><div class="level-label">STOP LOSS</div><div class="level-val sl" data-real="2,361.00" data-fake="2,3xx.xx">2,361.00</div></div>
+      <div class="level-item"><div class="level-label">TAKE PROFIT</div><div class="level-val tp" data-real="2,401.80" data-fake="2,4xx.xx">2,401.80</div></div>
+      <!-- lock overlay injected for free -->
+      <div class="lock-overlay" id="lockOverlay" style="display:none;">
+        <div class="lk-icon">&#128274;</div>
+        <div class="lk-text" data-i18n="lockText">Mở khóa Entry / SL / TP<br>với gói trả phí</div>
+        <a href="#" class="lock-btn" data-i18n="unlockBtn">Mở khóa ngay</a>
+      </div>
+    </div>
+
+    <!-- LIVE DISTANCE FROM ENTRY -->
+    <div style="padding:10px 18px;background:rgba(201,168,76,0.04);border-top:1px solid var(--border);">
+      <div style="display:flex;justify-content:space-between;font-size:9px;font-family:'JetBrains Mono',monospace;color:var(--muted);margin-bottom:5px;">
+        <span>SL ← 2,361</span><span id="priceDist" style="color:var(--gold);">Giá cách entry: +13.3 pip ↑</span><span>TP → 2,401</span>
+      </div>
+      <div style="height:4px;background:var(--border);border-radius:2px;position:relative;">
+        <div id="distBar" style="position:absolute;left:30%;top:0;height:100%;width:10%;background:var(--bull);border-radius:2px;transition:all 0.5s;"></div>
+      </div>
+    </div>
+
+    <div class="rr-section">
+      <div class="rr-label"><span data-i18n="rr">RISK/REWARD</span><span class="rr-val">1 : 3.0</span></div>
+      <div class="rr-bar-bg"><div class="rr-bar-fill"></div></div>
+    </div>
+
+    <div class="signal-tags">
+      <div class="tag highlight">H4 OB</div>
+      <div class="tag highlight">FVG FILLED</div>
+      <div class="tag">LIQ SWEEP</div>
+      <div class="tag">LONDON OPEN</div>
+      <div class="tag">EQL LOWS</div>
+    </div>
+    <div style="padding:0 18px 16px;font-size:10px;font-family:'JetBrains Mono',monospace;color:var(--muted);line-height:1.45;" data-i18n="strengthNote">&#9432; Dựa trên 5/6 yếu tố hợp lưu ICT. Đây KHÔNG phải tỉ lệ thắng hay đảm bảo lợi nhuận.</div>
+  </div>
+
+  <!-- ICT CHECKLIST -->
+  <div class="checklist">
+    <div class="checklist-header">
+      <span data-i18n="ictTitle">ICT CONFLUENCE CHECK</span>
+      <span class="check-score" data-i18n="pass56">5/6 PASS</span>
+    </div>
+    <div class="check-item"><div class="check-icon pass">&#10003;</div><div class="check-text" data-i18n="ck1">HTF Bullish Structure (BOS)</div><div class="check-tf">D1</div></div>
+    <div class="check-item"><div class="check-icon pass">&#10003;</div><div class="check-text" data-i18n="ck2">Order Block Identified</div><div class="check-tf">H4</div></div>
+    <div class="check-item"><div class="check-icon pass">&#10003;</div><div class="check-text" data-i18n="ck3">Fair Value Gap Present</div><div class="check-tf">H1</div></div>
+    <div class="check-item"><div class="check-icon pass">&#10003;</div><div class="check-text" data-i18n="ck4">Liquidity Swept (EQL Lows)</div><div class="check-tf">H1</div></div>
+    <div class="check-item"><div class="check-icon pass">&#10003;</div><div class="check-text" data-i18n="ck5">Killzone Active (London)</div><div class="check-tf">M15</div></div>
+    <div class="check-item"><div class="check-icon warn">!</div><div class="check-text" data-i18n="ck6">CHoCH Confirmation Pending</div><div class="check-tf">M15</div></div>
+  </div>
+
+  <div class="bottom-nav">
+    <a href="goldflow-signal.html" class="nav-item active" style="text-decoration:none;"><div class="nav-icon">&#9889;</div><div class="nav-label">SIGNAL</div></a>
+    <a href="goldflow-chart.html" class="nav-item" style="text-decoration:none;"><div class="nav-icon">&#128202;</div><div class="nav-label">CHART</div></a>
+    <a href="goldflow-track-record.html" class="nav-item" style="text-decoration:none;"><div class="nav-icon">&#128203;</div><div class="nav-label">RECORD</div></a>
+    <a href="#" class="nav-item" style="text-decoration:none;"><div class="nav-icon">&#128100;</div><div class="nav-label">ACCOUNT</div></a>
+  </div>
+
+</div>
+
+<!-- TOAST notification -->
+<div class="toast" id="toast">
+  <div class="toast-icon">&#128276;</div>
+  <div>
+    <div class="toast-text"><b>XAUUSD</b> <span data-i18n="toastText">— Tín hiệu BUY mới!</span></div>
+    <div class="toast-sub" data-i18n="toastSub">H1 OB + FVG &middot; Confidence 87%</div>
+  </div>
+</div>
+
+<script>
+  var I18N={
+    en:{demoLabel:"PREVIEW:",modeFree:"Free plan",modePaid:"Paid plan",
+      freeBanner:"&#9200; Free plan — signals delayed 4 hours",upgrade:"Upgrade &rarr;",
+      paidBanner:"&#9889; Basic plan — Realtime &middot; Active",
+      mtfTitle:"MULTI-TIMEFRAME BIAS",pullback:"Pullback",confLabel:"SETUP STRENGTH",
+      strengthNote:"&#9432; Based on 5/6 ICT confluence factors. This is NOT a win-rate or profit guarantee.",
+      stTp1:"TP1 Hit (50% closed)",riskFree:"&#128737; Risk-Free",
+      journey:"&#128309; Filled <b>10:00</b> &rarr; <span class=\"sj-win\">&#128994; TP1 11:30 (+1.5R, 50% closed, SL moved to entry)</span> &rarr; running to TP2",
+      lockText:"Unlock Entry / SL / TP<br>with a paid plan",unlockBtn:"Unlock now",
+      rr:"RISK/REWARD",ictTitle:"ICT CONFLUENCE CHECK",pass56:"5/6 PASS",
+      ck1:"HTF Bullish Structure (BOS)",ck2:"Order Block Identified",ck3:"Fair Value Gap Present",
+      ck4:"Liquidity Swept (EQL Lows)",ck5:"Killzone Active (London)",ck6:"CHoCH Confirmation Pending",
+      toastText:"— New BUY signal!",toastSub:"H1 OB + FVG &middot; Confidence 87%"},
+    vi:{}
+  };
+  var origVI={};
+  function cache(){
+    document.querySelectorAll('[data-i18n]').forEach(function(e){origVI[e.getAttribute('data-i18n')]=e.innerHTML;});
+    document.querySelectorAll('[data-i18n-html]').forEach(function(e){origVI['_h_'+e.getAttribute('data-i18n-html')]=e.innerHTML;});
+  }
+  function setLang(l){
+    document.getElementById('lVI').classList.toggle('active',l==='vi');
+    document.getElementById('lEN').classList.toggle('active',l==='en');
+    document.documentElement.lang=l;var d=I18N[l];
+    document.querySelectorAll('[data-i18n]').forEach(function(e){var k=e.getAttribute('data-i18n');
+      if(l==='vi')e.innerHTML=origVI[k];else if(d[k]!==undefined)e.innerHTML=d[k];});
+    document.querySelectorAll('[data-i18n-html]').forEach(function(e){var k=e.getAttribute('data-i18n-html');
+      if(l==='vi')e.innerHTML=origVI['_h_'+k];else if(d[k]!==undefined)e.innerHTML=d[k];});
+  }
+
+  var mode='free';
+  function setMode(m){
+    mode=m;
+    document.getElementById('modeFree').classList.toggle('active',m==='free');
+    document.getElementById('modePaid').classList.toggle('active',m==='paid');
+    var free=m==='free';
+    document.getElementById('bannerFree').style.display=free?'flex':'none';
+    document.getElementById('bannerPaid').style.display=free?'none':'flex';
+    document.getElementById('lockOverlay').style.display=free?'flex':'none';
+    // bell lock state
+    var bell=document.getElementById('bell');
+    bell.classList.toggle('locked',free);
+    // hide/show real numbers
+    document.querySelectorAll('#levels .level-val').forEach(function(e){
+      e.textContent=free?e.getAttribute('data-fake'):e.getAttribute('data-real');
+      e.classList.toggle('locked',free);
+    });
+  }
+
+  function bellClick(){
+    if(mode==='free'){
+      alert('🔒 ' + (document.documentElement.lang==='en'
+        ? 'Notifications are for paid members. Upgrade to get alerts on new signals.'
+        : 'Thông báo chỉ dành cho thành viên trả phí. Nâng cấp để nhận chuông khi có lệnh mới.'));
+      return;
+    }
+    // paid: simulate new signal alert
+    var bell=document.getElementById('bell');
+    bell.classList.add('has-alert');
+    if(!bell.querySelector('.bell-dot')){var d=document.createElement('div');d.className='bell-dot';bell.appendChild(d);}
+    var t=document.getElementById('toast');t.classList.add('show');
+    setTimeout(function(){t.classList.remove('show');},3500);
+    setTimeout(function(){bell.classList.remove('has-alert');},800);
+  }
+
+  cache();
+  setMode('free');
+</script>
+
+<script>
+// Simulated sentiment animation (in real app: from API)
+var bullPct = 68;
+function updateSentiment(){
+  var drift = (Math.random()-0.48)*1.5;
+  bullPct = Math.max(35,Math.min(85,bullPct+drift));
+  document.getElementById('sentBar').style.width = bullPct+'%';
+  document.getElementById('sentPointer').style.left = bullPct+'%';
+  var label = bullPct>60?'BULLISH BIAS':bullPct<40?'BEARISH BIAS':'NEUTRAL';
+  document.getElementById('sentLabel').textContent = label;
+  document.getElementById('sentScore').textContent = Math.round(bullPct)+'% Bullish';
+}
+setInterval(updateSentiment,3000);
+
+// Simulated price distance animation
+var distPct = 32;
+function updateDist(){
+  var d = (Math.random()-0.45)*2;
+  distPct = Math.max(5,Math.min(90,distPct+d));
+  document.getElementById('distBar').style.left = distPct+'%';
+  var pips = Math.round((distPct-30)*0.5*10)/10;
+  var dir = pips>=0?'↑':'↓';
+  document.getElementById('priceDist').textContent='Giá cách entry: '+(pips>=0?'+':'')+pips+' pip '+dir;
+  document.getElementById('priceDist').style.color = pips>=0?'var(--bull)':'var(--bear)';
+}
+setInterval(updateDist,2000);
+</script>
+</body>
+</html>

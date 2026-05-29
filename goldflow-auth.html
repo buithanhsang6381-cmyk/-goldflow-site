@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GoldFlow — Sign Up</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%23C9A84C'/%3E%3Ctext x='16' y='22' text-anchor='middle' font-size='16' fill='%23000' font-family='Arial'%3EG%3C/text%3E%3C/svg%3E">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root{--gold:#C9A84C;--gold-light:#F0D080;--gold-dim:#6B5420;--bg:#080A0E;--bg2:#0D1018;--bg3:#131720;--border:#1E2430;--text:#E8EAF0;--muted:#5A6478;--bull:#26A65B;--bear:#E53E3E;--tele:#2AABEE;}
+  *{margin:0;padding:0;box-sizing:border-box;}
+  body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;min-height:100vh;overflow-x:hidden;}
+  body::before{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");pointer-events:none;z-index:0;}
+  .wrap{position:relative;z-index:1;max-width:440px;margin:0 auto;min-height:100vh;}
+
+  /* progress bar */
+  .steps{display:flex;align-items:center;gap:6px;padding:16px 24px;border-bottom:1px solid var(--border);background:rgba(8,10,14,0.9);position:sticky;top:0;z-index:20;}
+  .step-dot{flex:1;height:3px;border-radius:2px;background:var(--border);transition:background 0.3s;}
+  .step-dot.active{background:linear-gradient(90deg,var(--gold-light),var(--gold));}
+  .back-btn{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted);background:none;border:none;cursor:pointer;padding:0;margin-right:8px;}
+
+  .screen{display:none;padding:32px 24px 40px;animation:fade 0.35s ease;}
+  .screen.active{display:block;}
+  @keyframes fade{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:translateY(0);}}
+
+  .brand{display:flex;align-items:center;gap:10px;justify-content:center;margin-bottom:8px;}
+  .brand-icon{width:36px;height:36px;background:linear-gradient(135deg,var(--gold-light),var(--gold-dim));border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:16px;color:#000;}
+  .brand-name{font-size:18px;font-weight:800;}
+  .brand-name span{color:var(--gold-light);}
+
+  h2{font-size:26px;font-weight:800;text-align:center;margin-bottom:6px;letter-spacing:-0.01em;}
+  .sub{text-align:center;color:var(--muted);font-size:13px;margin-bottom:28px;line-height:1.5;}
+
+  .btn-google{width:100%;display:flex;align-items:center;justify-content:center;gap:10px;background:#fff;color:#1a1a1a;font-family:'Inter';font-weight:700;font-size:15px;padding:15px;border-radius:12px;border:none;cursor:pointer;margin-bottom:12px;}
+  .btn-tele{width:100%;display:flex;align-items:center;justify-content:center;gap:10px;background:var(--tele);color:#fff;font-family:'Inter';font-weight:700;font-size:15px;padding:15px;border-radius:12px;border:none;cursor:pointer;margin-bottom:18px;}
+  .g-logo{width:20px;height:20px;}
+
+  .divider{display:flex;align-items:center;gap:12px;margin:18px 0;color:var(--muted);font-size:11px;font-family:'JetBrains Mono',monospace;}
+  .divider::before,.divider::after{content:'';flex:1;height:1px;background:var(--border);}
+
+  .field{margin-bottom:14px;}
+  .field label{display:block;font-size:11px;font-family:'JetBrains Mono',monospace;color:var(--muted);letter-spacing:0.08em;margin-bottom:7px;text-transform:uppercase;}
+  .field input{width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:11px;padding:14px;color:var(--text);font-family:'Inter';font-size:15px;outline:none;transition:border 0.2s;}
+  .field input:focus{border-color:var(--gold);}
+  .forgot{text-align:right;font-size:12px;color:var(--gold);font-family:'JetBrains Mono',monospace;margin-top:-6px;margin-bottom:18px;cursor:pointer;}
+
+  .btn-primary{width:100%;background:linear-gradient(135deg,var(--gold-light),var(--gold));color:#000;font-family:'Inter';font-weight:700;font-size:15px;padding:16px;border-radius:12px;border:none;cursor:pointer;box-shadow:0 8px 24px rgba(201,168,76,0.2);}
+  .btn-primary:active{transform:scale(0.98);}
+  .btn-outline{width:100%;background:transparent;color:var(--text);border:1px solid var(--border);font-family:'Inter';font-weight:600;font-size:14px;padding:14px;border-radius:12px;cursor:pointer;margin-top:10px;}
+
+  .switch-line{text-align:center;font-size:13px;color:var(--muted);margin-top:20px;}
+  .switch-line a{color:var(--gold-light);cursor:pointer;font-weight:600;}
+
+  /* plans */
+  .region-toggle{display:flex;background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:4px;margin:0 auto 22px;width:fit-content;}
+  .region-toggle button{font-family:'JetBrains Mono',monospace;font-size:12px;padding:8px 18px;border:none;background:transparent;color:var(--muted);border-radius:7px;cursor:pointer;}
+  .region-toggle button.active{background:var(--gold);color:#000;font-weight:600;}
+
+  .plan-pick{background:var(--bg3);border:1.5px solid var(--border);border-radius:14px;padding:18px;margin-bottom:12px;cursor:pointer;transition:all 0.2s;position:relative;}
+  .plan-pick.selected{border-color:var(--gold);background:linear-gradient(160deg,rgba(201,168,76,0.06),var(--bg3) 60%);}
+  .plan-pick.selected::after{content:'\2713';position:absolute;top:16px;right:16px;width:22px;height:22px;background:var(--gold);color:#000;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;}
+  .pp-top{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px;}
+  .pp-name{font-size:16px;font-weight:800;}
+  .pp-price{font-family:'JetBrains Mono',monospace;font-size:20px;color:var(--gold-light);font-weight:600;}
+  .pp-price small{font-size:11px;color:var(--muted);}
+  .pp-desc{font-size:12px;color:var(--muted);line-height:1.4;}
+  .pp-badge{display:inline-block;font-family:'JetBrains Mono',monospace;font-size:9px;background:var(--gold);color:#000;padding:2px 8px;border-radius:10px;margin-left:8px;letter-spacing:0.08em;vertical-align:middle;}
+
+  /* payment */
+  .pay-method{background:var(--bg3);border:1.5px solid var(--border);border-radius:12px;padding:16px;margin-bottom:12px;cursor:pointer;display:flex;align-items:center;gap:14px;transition:all 0.2s;}
+  .pay-method.selected{border-color:var(--gold);}
+  .pay-icon{width:42px;height:42px;border-radius:10px;background:var(--bg2);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;}
+  .pay-info{flex:1;}
+  .pay-name{font-size:14px;font-weight:700;margin-bottom:2px;}
+  .pay-desc{font-size:11px;color:var(--muted);font-family:'JetBrains Mono',monospace;}
+  .pay-radio{width:20px;height:20px;border-radius:50%;border:2px solid var(--border);flex-shrink:0;}
+  .pay-method.selected .pay-radio{border-color:var(--gold);background:radial-gradient(var(--gold) 40%,transparent 45%);}
+
+  .order-summary{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:16px;margin:20px 0;}
+  .order-row{display:flex;justify-content:space-between;font-size:13px;padding:6px 0;color:var(--muted);}
+  .order-row.total{border-top:1px solid var(--border);margin-top:8px;padding-top:12px;color:var(--text);font-weight:700;font-size:16px;}
+  .order-row.total span:last-child{color:var(--gold-light);font-family:'JetBrains Mono',monospace;}
+
+  /* USDT box */
+  .usdt-box{background:var(--bg3);border:1px solid var(--gold-dim);border-radius:12px;padding:18px;text-align:center;margin:18px 0;}
+  .qr-placeholder{width:160px;height:160px;background:#fff;border-radius:12px;margin:0 auto 14px;display:flex;align-items:center;justify-content:center;color:#000;font-family:'JetBrains Mono',monospace;font-size:10px;text-align:center;padding:10px;}
+  .usdt-addr{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--gold-light);word-break:break-all;background:var(--bg2);padding:10px;border-radius:8px;border:1px solid var(--border);margin-bottom:8px;}
+  .copy-hint{font-size:10px;color:var(--muted);font-family:'JetBrains Mono',monospace;}
+
+  /* success */
+  .success-icon{width:80px;height:80px;background:var(--bull-bg,rgba(38,166,91,0.1));border:2px solid var(--bull);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:38px;color:var(--bull);margin:0 auto 24px;animation:pop 0.5s ease;}
+  @keyframes pop{0%{transform:scale(0);}70%{transform:scale(1.15);}100%{transform:scale(1);}}
+
+  .disclaim{font-size:10px;color:var(--muted);text-align:center;font-family:'JetBrains Mono',monospace;line-height:1.5;margin-top:24px;padding:0 10px;}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- progress -->
+  <div class="steps">
+    <button class="back-btn" id="backBtn" onclick="goBack()" style="visibility:hidden;">&larr;</button>
+    <div class="step-dot active" id="d1"></div>
+    <div class="step-dot" id="d2"></div>
+    <div class="step-dot" id="d3"></div>
+    <div class="step-dot" id="d4"></div>
+  </div>
+
+  <!-- SCREEN 1: SIGN UP -->
+  <div class="screen active" id="s1">
+    <div class="brand"><div class="brand-icon">&#11041;</div><div class="brand-name">Gold<span>Flow</span></div></div>
+    <h2>Create your account</h2>
+    <p class="sub">Daily SMC &amp; ICT market structure analysis<br>for Gold &amp; Bitcoin traders</p>
+
+    <button class="btn-google" onclick="next(2)">
+      <svg class="g-logo" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+      Continue with Google
+    </button>
+    <button class="btn-tele" onclick="next(2)">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="#fff"><path d="M9.78 18.65l.28-4.23 7.68-6.92c.34-.31-.07-.46-.52-.19L7.74 13.3 3.64 12c-.88-.25-.89-.86.2-1.3l15.97-6.16c.73-.33 1.43.18 1.15 1.3l-2.72 12.81c-.19.91-.74 1.13-1.5.71L12.6 16.3l-1.99 1.93c-.23.23-.42.42-.83.42z"/></svg>
+      Continue with Telegram
+    </button>
+
+    <div class="divider">OR</div>
+
+    <div class="field"><label>Email</label><input type="email" placeholder="you@email.com"></div>
+    <div class="field"><label>Password</label><input type="password" placeholder="\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022"></div>
+    <button class="btn-primary" onclick="next(2)">Sign up</button>
+
+
+    <div style="display:flex;justify-content:center;gap:16px;margin-top:18px;flex-wrap:wrap;">
+      <div style="display:flex;align-items:center;gap:5px;font-size:10px;color:var(--muted);font-family:'JetBrains Mono',monospace;">&#128274; SSL Secured</div>
+      <div style="display:flex;align-items:center;gap:5px;font-size:10px;color:var(--muted);font-family:'JetBrains Mono',monospace;">&#9989; No spam</div>
+      <div style="display:flex;align-items:center;gap:5px;font-size:10px;color:var(--muted);font-family:'JetBrains Mono',monospace;">&#128257; Cancel anytime</div>
+    </div>
+    <div class="switch-line">Already have an account? <a onclick="showLogin()">Log in</a></div>
+    <p class="disclaim">Educational market analysis only. Not financial advice. By signing up you agree to our Terms &amp; Privacy Policy.</p>
+  </div>
+
+  <!-- SCREEN 1b: LOGIN -->
+  <div class="screen" id="sLogin">
+    <div class="brand"><div class="brand-icon">&#11041;</div><div class="brand-name">Gold<span>Flow</span></div></div>
+    <h2>Welcome back</h2>
+    <p class="sub">Log in to view today's analysis</p>
+
+    <button class="btn-google" onclick="next(2)">
+      <svg class="g-logo" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+      Continue with Google
+    </button>
+    <div class="divider">OR</div>
+    <div class="field"><label>Email</label><input type="email" placeholder="you@email.com"></div>
+    <div class="field"><label>Password</label><input type="password" placeholder="\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022"></div>
+    <div class="forgot" onclick="alert('Firebase will send a reset link to your email automatically.')">Forgot password?</div>
+    <button class="btn-primary" onclick="next(2)">Log in</button>
+    <div class="switch-line">No account yet? <a onclick="showSignup()">Sign up</a></div>
+  </div>
+
+  <!-- SCREEN 2: CHOOSE PLAN -->
+  <div class="screen" id="s2">
+    <h2>Choose your plan</h2>
+    <p class="sub">Start free, upgrade anytime</p>
+
+    <div class="region-toggle">
+      <button id="rVN" onclick="setRegion('vn')">&#127483;&#127475; VND</button>
+      <button id="rINT" class="active" onclick="setRegion('int')">&#127758; USDT</button>
+    </div>
+
+    <div class="plan-pick" onclick="pickPlan(this,'free')">
+      <div class="pp-top"><div class="pp-name">Free</div><div class="pp-price">0</div></div>
+      <div class="pp-desc">Multi-TF bias + confidence. Levels hidden, 4h delay.</div>
+    </div>
+
+    <div class="plan-pick selected" onclick="pickPlan(this,'basic')">
+      <div class="pp-top"><div class="pp-name">Basic<span class="pp-badge">POPULAR</span></div><div class="pp-price" data-vn="799k" data-int="$25">$25<small>/mo</small></div></div>
+      <div class="pp-desc">Realtime signals, full Entry / SL / TP, ICT checklist, alerts.</div>
+    </div>
+
+    <div class="plan-pick" onclick="pickPlan(this,'vip')">
+      <div class="pp-top"><div class="pp-name">VIP</div><div class="pp-price" data-vn="1.999k" data-int="$59">$59<small>/mo</small></div></div>
+      <div class="pp-desc">Everything in Basic + SMC/ICT breakdown, A/B scenarios, Telegram Q&amp;A.</div>
+    </div>
+
+    <button class="btn-primary" style="margin-top:16px;" onclick="next(3)">Continue to payment</button>
+  </div>
+
+  <!-- SCREEN 3: PAYMENT -->
+  <div class="screen" id="s3">
+    <h2>Payment</h2>
+    <p class="sub">Secure checkout</p>
+
+    <div id="payVN" style="display:none;">
+      <div class="pay-method selected" onclick="pickPay(this)"><div class="pay-icon">&#128179;</div><div class="pay-info"><div class="pay-name">PayOS</div><div class="pay-desc">ATM / Visa / QR Banking</div></div><div class="pay-radio"></div></div>
+      <div class="pay-method" onclick="pickPay(this)"><div class="pay-icon">&#128241;</div><div class="pay-info"><div class="pay-name">MoMo</div><div class="pay-desc">E-wallet</div></div><div class="pay-radio"></div></div>
+      <div class="pay-method" onclick="pickPay(this)"><div class="pay-icon">&#128184;</div><div class="pay-info"><div class="pay-name">ZaloPay</div><div class="pay-desc">E-wallet</div></div><div class="pay-radio"></div></div>
+    </div>
+
+    <div id="payINT">
+      <div class="pay-method selected" onclick="pickPay(this);showUsdt()"><div class="pay-icon">&#8383;</div><div class="pay-info"><div class="pay-name">USDT (TRC20)</div><div class="pay-desc">Tron network &middot; low fee</div></div><div class="pay-radio"></div></div>
+      <div class="usdt-box" id="usdtBox">
+        <div class="qr-placeholder">QR CODE<br>(auto-generated)</div>
+        <div class="usdt-addr">TXXxxxxYourUSDTWalletAddressHerexxxxXX</div>
+        <div class="copy-hint">Send exactly 25 USDT &middot; tap address to copy</div>
+      </div>
+    </div>
+
+    <div class="order-summary">
+      <div class="order-row"><span>Plan</span><span id="sumPlan">Basic (monthly)</span></div>
+      <div class="order-row"><span>Billing</span><span>Recurring monthly</span></div>
+      <div class="order-row total"><span>Total</span><span id="sumTotal">$25</span></div>
+    </div>
+
+    <button class="btn-primary" onclick="next(4)">Confirm &amp; activate</button>
+    <p class="disclaim">Educational analysis service. Not financial advice. Refund policy applies — see Terms.</p>
+  </div>
+
+  <!-- SCREEN 4: SUCCESS -->
+  <div class="screen" id="s4" style="text-align:center;">
+    <div class="success-icon">&#10003;</div>
+    <h2>You're in!</h2>
+    <p class="sub">Your <b id="okPlan">Basic</b> plan is active.<br>Realtime analysis unlocked.</p>
+    <button class="btn-primary" onclick="window.location.href='goldflow-signal.html'">Go to dashboard</button>
+    <button class="btn-outline" onclick="window.open('https://t.me/Goldflowsignal','_blank')">Join Telegram channel</button>
+  </div>
+
+</div>
+
+<script>
+  var history=[1];
+  function showScreen(id){
+    document.querySelectorAll('.screen').forEach(function(s){s.classList.remove('active');});
+    document.getElementById(id).classList.add('active');
+    window.scrollTo(0,0);
+  }
+  function setDots(n){for(var i=1;i<=4;i++){document.getElementById('d'+i).classList.toggle('active',i<=n);}}
+  function next(n){
+    history.push(n);
+    showScreen('s'+n);setDots(n);
+    document.getElementById('backBtn').style.visibility = n>1?'visible':'hidden';
+  }
+  function goBack(){
+    history.pop();
+    var prev=history[history.length-1]||1;
+    showScreen('s'+prev);setDots(prev);
+    document.getElementById('backBtn').style.visibility = prev>1?'visible':'hidden';
+  }
+  function showLogin(){showScreen('sLogin');}
+  function showSignup(){showScreen('s1');}
+
+  var region='int';
+  function setRegion(r){
+    region=r;
+    document.getElementById('rVN').classList.toggle('active',r==='vn');
+    document.getElementById('rINT').classList.toggle('active',r==='int');
+    document.querySelectorAll('[data-vn]').forEach(function(e){
+      var v=r==='vn'?e.getAttribute('data-vn'):e.getAttribute('data-int');
+      e.innerHTML = v + (e.querySelector('small')?'<small>/mo</small>':'');
+      if(e.querySelector('small')) e.innerHTML = v + '<small>'+(r==='vn'?'/thg':'/mo')+'</small>';
+    });
+    document.getElementById('payVN').style.display = r==='vn'?'block':'none';
+    document.getElementById('payINT').style.display = r==='int'?'block':'none';
+    updateSummary();
+  }
+  var plan='basic';
+  function pickPlan(el,p){
+    document.querySelectorAll('.plan-pick').forEach(function(x){x.classList.remove('selected');});
+    el.classList.add('selected');plan=p;updateSummary();
+  }
+  function updateSummary(){
+    var prices={free:{vn:'0',int:'$0'},basic:{vn:'799k',int:'$25'},vip:{vn:'1.999k',int:'$59'}};
+    var names={free:'Free',basic:'Basic (monthly)',vip:'VIP (monthly)'};
+    document.getElementById('sumPlan').textContent=names[plan];
+    document.getElementById('sumTotal').textContent=prices[plan][region];
+    document.getElementById('okPlan').textContent=plan.charAt(0).toUpperCase()+plan.slice(1);
+  }
+  function pickPay(el){
+    el.parentNode.querySelectorAll('.pay-method').forEach(function(x){x.classList.remove('selected');});
+    el.classList.add('selected');
+  }
+  function showUsdt(){document.getElementById('usdtBox').style.display='block';}
+
+  setRegion('int');
+</script>
+</body>
+</html>
